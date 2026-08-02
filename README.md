@@ -1,32 +1,44 @@
-# React + TypeScript + Vite
+# Global hotkeys firing inside an ARIA widget
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Minimal reproduction for [TanStack Hotkeys issue #138](https://github.com/TanStack/hotkeys/issues/138).
 
-Currently, two official plugins are available:
+The demo registers `ArrowDown` as a document-level hotkey with `useHotkey`. It also renders a Radix dropdown menu that uses `ArrowDown` to move focus between its menu items.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+When the menu is open, one `ArrowDown` keypress moves focus to the next menu item **and** increments the global hotkey counter.
 
-## React Compiler
+## Run the demo
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Open in StackBlitz
 
-## Expanding the Oxlint configuration
+[Open the repository in StackBlitz](https://stackblitz.com/github/IanWorley/global-hotkeys-fire-inside-aria-widgets)
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### Run locally
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+git clone https://github.com/IanWorley/global-hotkeys-fire-inside-aria-widgets.git
+cd global-hotkeys-fire-inside-aria-widgets
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Open the local URL printed by Vite.
+
+## Steps to reproduce
+
+1. Open the dropdown menu.
+2. Press `ArrowDown` to move through the menu items.
+3. Watch the selected menu item and the global hotkey counter.
+
+## Actual behavior
+
+The menu moves focus to the next item, and the document-level `ArrowDown` hotkey also fires, incrementing the counter.
+
+## Expected behavior
+
+When a focused widget uses a key for its own keyboard interaction, a matching global hotkey should not fire. In this example, `ArrowDown` should move focus within the menu without incrementing the global hotkey counter.
+
+## Relevant dependencies
+
+- React 19
+- `@tanstack/react-hotkeys` 0.10
+- Radix UI
